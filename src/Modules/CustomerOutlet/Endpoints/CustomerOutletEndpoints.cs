@@ -1,3 +1,4 @@
+using CIOT.Common.Contracts.CustomerOutlet;
 using CIOT.Modules.CustomerOutlet.Application.Commands;
 using CIOT.Modules.CustomerOutlet.Application.Dtos;
 using CIOT.Modules.CustomerOutlet.Application.Queries;
@@ -53,7 +54,7 @@ public static class CustomerOutletEndpoints
         .WithName("CreateCustomer")
         .WithSummary("Create a new customer");
 
-        group.MapGet("/customers/{id:guid}/validate-cluster", async (Guid id, Guid? outletId, Guid? clusterId, ICustomerOutletEndpointClient client, CancellationToken ct) =>
+        group.MapGet("/customers/{id:guid}/validate-cluster", async (Guid id, Guid? outletId, Guid? clusterId, ICustomerOutletApi client, CancellationToken ct) =>
         {
             var result = await client.ValidateCustomerAndClusterAsync(id, outletId, clusterId, ct);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);

@@ -35,8 +35,6 @@ public static class AssetModuleExtensions
 
         services.AddValidatorsFromAssembly(typeof(RegisterAssetCommand).Assembly);
 
-        services.AddScoped<CIOT.Modules.Asset.Application.Contracts.ICustomerOutletValidator, CIOT.Modules.Asset.Endpoints.CustomerOutletValidatorAdapter>();
-
         return services;
     }
 }

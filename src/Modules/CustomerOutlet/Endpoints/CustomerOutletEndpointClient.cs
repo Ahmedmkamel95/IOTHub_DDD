@@ -1,26 +1,11 @@
+using CIOT.Common.Contracts.CustomerOutlet;
 using CIOT.Common.Results;
 using CIOT.Modules.CustomerOutlet.Application.Queries;
 using MediatR;
 
 namespace CIOT.Modules.CustomerOutlet.Endpoints;
 
-public record CustomerValidationResponse(
-    bool IsValid,
-    Guid CustomerId,
-    Guid? ClusterId,
-    Guid? OutletId,
-    string? Message = null);
-
-public interface ICustomerOutletEndpointClient
-{
-    Task<Result<CustomerValidationResponse>> ValidateCustomerAndClusterAsync(
-        Guid customerId,
-        Guid? outletId = null,
-        Guid? clusterId = null,
-        CancellationToken cancellationToken = default);
-}
-
-public sealed class CustomerOutletEndpointClient : ICustomerOutletEndpointClient
+public sealed class CustomerOutletEndpointClient : ICustomerOutletApi
 {
     private readonly ISender _sender;
 

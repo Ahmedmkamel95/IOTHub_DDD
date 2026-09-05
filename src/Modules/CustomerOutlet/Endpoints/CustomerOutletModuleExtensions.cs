@@ -35,7 +35,7 @@ public static class CustomerOutletModuleExtensions
 
         services.AddValidatorsFromAssembly(typeof(CreateCustomerCommand).Assembly);
 
-        services.AddScoped<Endpoints.ICustomerOutletEndpointClient, Endpoints.CustomerOutletEndpointClient>();
+        services.AddScoped<CIOT.Common.Contracts.CustomerOutlet.ICustomerOutletApi, Endpoints.CustomerOutletEndpointClient>();
 
         return services;
     }

@@ -1,6 +1,6 @@
 using CIOT.Common.CQRS;
+using CIOT.Common.Contracts.CustomerOutlet;
 using CIOT.Common.Results;
-using CIOT.Modules.Asset.Application.Contracts;
 using CIOT.Modules.Asset.Application.Dtos;
 using CIOT.Modules.Asset.Domain;
 using CIOT.Modules.Asset.Infrastructure;
@@ -97,12 +97,12 @@ public class AssetCommandHandlers :
 public class AssignAssetToCustomerOutletCommandHandler : IRequestHandler<AssignAssetToCustomerOutletCommand, Result<AssetOutletAssignmentDto>>
 {
     private readonly AssetDbContext _dbContext;
-    private readonly ICustomerOutletValidator _validator;
+    private readonly ICustomerOutletApi _customerOutletApi;
 
-    public AssignAssetToCustomerOutletCommandHandler(AssetDbContext dbContext, ICustomerOutletValidator validator)
+    public AssignAssetToCustomerOutletCommandHandler(AssetDbContext dbContext, ICustomerOutletApi customerOutletApi)
     {
         _dbContext = dbContext;
-        _validator = validator;
+        _customerOutletApi = customerOutletApi;
     }
 
     public async Task<Result<AssetOutletAssignmentDto>> Handle(AssignAssetToCustomerOutletCommand command, CancellationToken cancellationToken)
@@ -117,7 +117,7 @@ public class AssignAssetToCustomerOutletCommandHandler : IRequestHandler<AssignA
         }
 
         // 1. Cross-module verification: check if Customer is valid, active, and cluster is active
-        var validationResult = await _validator.ValidateCustomerAndClusterAsync(
+        var validationResult = await _customerOutletApi.ValidateCustomerAndClusterAsync(
             command.Request.CustomerId,
             command.Request.OutletId,
             command.Request.ClusterId,
