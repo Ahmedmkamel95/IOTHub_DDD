@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CIOT.Common\CIOT.Common.csproj" />
+    <ProjectReference Include="..\Domain\CIOT.Modules.Org.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\CIOT.Modules.Org.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

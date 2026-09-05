@@ -1,0 +1,96 @@
+﻿<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/CIOT.Common/CIOT.Common.csproj" />
+    <Project Path="src/Common/CIOT.ServiceDefaults/CIOT.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/Host/">
+    <Project Path="src/Host/CIOT.Api/CIOT.Api.csproj" />
+    <Project Path="src/Host/CIOT.AppHost/CIOT.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Admin/">
+    <Project Path="src/Modules/Admin/Domain/CIOT.Modules.Admin.Domain.csproj" />
+    <Project Path="src/Modules/Admin/Infrastructure/CIOT.Modules.Admin.Infrastructure.csproj" />
+    <Project Path="src/Modules/Admin/Application/CIOT.Modules.Admin.Application.csproj" />
+    <Project Path="src/Modules/Admin/Endpoints/CIOT.Modules.Admin.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Asset/">
+    <Project Path="src/Modules/Asset/Domain/CIOT.Modules.Asset.Domain.csproj" />
+    <Project Path="src/Modules/Asset/Infrastructure/CIOT.Modules.Asset.Infrastructure.csproj" />
+    <Project Path="src/Modules/Asset/Application/CIOT.Modules.Asset.Application.csproj" />
+    <Project Path="src/Modules/Asset/Endpoints/CIOT.Modules.Asset.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Audit/">
+    <Project Path="src/Modules/Audit/Domain/CIOT.Modules.Audit.Domain.csproj" />
+    <Project Path="src/Modules/Audit/Infrastructure/CIOT.Modules.Audit.Infrastructure.csproj" />
+    <Project Path="src/Modules/Audit/Application/CIOT.Modules.Audit.Application.csproj" />
+    <Project Path="src/Modules/Audit/Endpoints/CIOT.Modules.Audit.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Domain/CIOT.Modules.Catalog.Domain.csproj" />
+    <Project Path="src/Modules/Catalog/Infrastructure/CIOT.Modules.Catalog.Infrastructure.csproj" />
+    <Project Path="src/Modules/Catalog/Application/CIOT.Modules.Catalog.Application.csproj" />
+    <Project Path="src/Modules/Catalog/Endpoints/CIOT.Modules.Catalog.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/CustomerOutlet/">
+    <Project Path="src/Modules/CustomerOutlet/Domain/CIOT.Modules.CustomerOutlet.Domain.csproj" />
+    <Project Path="src/Modules/CustomerOutlet/Infrastructure/CIOT.Modules.CustomerOutlet.Infrastructure.csproj" />
+    <Project Path="src/Modules/CustomerOutlet/Application/CIOT.Modules.CustomerOutlet.Application.csproj" />
+    <Project Path="src/Modules/CustomerOutlet/Endpoints/CIOT.Modules.CustomerOutlet.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Devices/">
+    <Project Path="src/Modules/Devices/Domain/CIOT.Modules.Devices.Domain.csproj" />
+    <Project Path="src/Modules/Devices/Infrastructure/CIOT.Modules.Devices.Infrastructure.csproj" />
+    <Project Path="src/Modules/Devices/Application/CIOT.Modules.Devices.Application.csproj" />
+    <Project Path="src/Modules/Devices/Endpoints/CIOT.Modules.Devices.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/Domain/CIOT.Modules.Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/Infrastructure/CIOT.Modules.Identity.Infrastructure.csproj" />
+    <Project Path="src/Modules/Identity/Application/CIOT.Modules.Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/Endpoints/CIOT.Modules.Identity.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Integration/">
+    <Project Path="src/Modules/Integration/Domain/CIOT.Modules.Integration.Domain.csproj" />
+    <Project Path="src/Modules/Integration/Infrastructure/CIOT.Modules.Integration.Infrastructure.csproj" />
+    <Project Path="src/Modules/Integration/Application/CIOT.Modules.Integration.Application.csproj" />
+    <Project Path="src/Modules/Integration/Endpoints/CIOT.Modules.Integration.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/LocalAdapter/">
+    <Project Path="src/Modules/LocalAdapter/Domain/CIOT.Modules.LocalAdapter.Domain.csproj" />
+    <Project Path="src/Modules/LocalAdapter/Infrastructure/CIOT.Modules.LocalAdapter.Infrastructure.csproj" />
+    <Project Path="src/Modules/LocalAdapter/Application/CIOT.Modules.LocalAdapter.Application.csproj" />
+    <Project Path="src/Modules/LocalAdapter/Endpoints/CIOT.Modules.LocalAdapter.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Mobile/">
+    <Project Path="src/Modules/Mobile/Domain/CIOT.Modules.Mobile.Domain.csproj" />
+    <Project Path="src/Modules/Mobile/Infrastructure/CIOT.Modules.Mobile.Infrastructure.csproj" />
+    <Project Path="src/Modules/Mobile/Application/CIOT.Modules.Mobile.Application.csproj" />
+    <Project Path="src/Modules/Mobile/Endpoints/CIOT.Modules.Mobile.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Org/">
+    <Project Path="src/Modules/Org/Domain/CIOT.Modules.Org.Domain.csproj" />
+    <Project Path="src/Modules/Org/Infrastructure/CIOT.Modules.Org.Infrastructure.csproj" />
+    <Project Path="src/Modules/Org/Application/CIOT.Modules.Org.Application.csproj" />
+    <Project Path="src/Modules/Org/Endpoints/CIOT.Modules.Org.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Provisioning/">
+    <Project Path="src/Modules/Provisioning/Domain/CIOT.Modules.Provisioning.Domain.csproj" />
+    <Project Path="src/Modules/Provisioning/Infrastructure/CIOT.Modules.Provisioning.Infrastructure.csproj" />
+    <Project Path="src/Modules/Provisioning/Application/CIOT.Modules.Provisioning.Application.csproj" />
+    <Project Path="src/Modules/Provisioning/Endpoints/CIOT.Modules.Provisioning.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Report/">
+    <Project Path="src/Modules/Report/Domain/CIOT.Modules.Report.Domain.csproj" />
+    <Project Path="src/Modules/Report/Infrastructure/CIOT.Modules.Report.Infrastructure.csproj" />
+    <Project Path="src/Modules/Report/Application/CIOT.Modules.Report.Application.csproj" />
+    <Project Path="src/Modules/Report/Endpoints/CIOT.Modules.Report.Endpoints.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Telemetry/">
+    <Project Path="src/Modules/Telemetry/Domain/CIOT.Modules.Telemetry.Domain.csproj" />
+    <Project Path="src/Modules/Telemetry/Infrastructure/CIOT.Modules.Telemetry.Infrastructure.csproj" />
+    <Project Path="src/Modules/Telemetry/Application/CIOT.Modules.Telemetry.Application.csproj" />
+    <Project Path="src/Modules/Telemetry/Endpoints/CIOT.Modules.Telemetry.Endpoints.csproj" />
+  </Folder>
+</Solution>

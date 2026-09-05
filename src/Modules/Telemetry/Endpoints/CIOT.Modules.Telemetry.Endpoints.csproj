@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CmdScale.EntityFrameworkCore.TimescaleDB" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CIOT.Common\CIOT.Common.csproj" />
+    <ProjectReference Include="..\Domain\CIOT.Modules.Telemetry.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\CIOT.Modules.Telemetry.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\CIOT.Modules.Telemetry.Application.csproj" />
+  </ItemGroup>
+</Project>

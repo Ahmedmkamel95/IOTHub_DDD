@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CIOT.Common\CIOT.Common.csproj" />
+    <ProjectReference Include="..\Domain\CIOT.Modules.Mobile.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\CIOT.Modules.Mobile.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\CIOT.Modules.Mobile.Application.csproj" />
+  </ItemGroup>
+</Project>
