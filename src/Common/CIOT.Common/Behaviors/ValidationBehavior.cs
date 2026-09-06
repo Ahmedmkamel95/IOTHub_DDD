@@ -47,12 +47,18 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             if (typeof(TResponse).IsGenericType &&
                 typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
             {
-                var resultType = typeof(Result<>).MakeGenericType(typeof(TResponse).GenericTypeArguments[0]);
-                var failureMethod = resultType.GetMethod(nameof(Result.Failure), new[] { typeof(Error) });
-                if (failureMethod != null)
-                {
-                    return (TResponse)failureMethod.Invoke(null, new object[] { error })!;
-                }
+                var valueType = typeof(TResponse).GenericTypeArguments[0];
+                var failureMethod = typeof(Result)
+                    .GetMethods()
+                    .Single(method =>
+                        method.Name == nameof(Result.Failure)
+                        && method.IsGenericMethodDefinition
+                        && method.GetGenericArguments().Length == 1
+                        && method.GetParameters().Length == 1
+                        && method.GetParameters()[0].ParameterType == typeof(Error))
+                    .MakeGenericMethod(valueType);
+
+                return (TResponse)failureMethod.Invoke(null, [error])!;
             }
 
             throw new ValidationException(validationFailures);
