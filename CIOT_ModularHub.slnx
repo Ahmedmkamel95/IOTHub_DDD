@@ -93,4 +93,14 @@
     <Project Path="src/Modules/Telemetry/Application/CIOT.Modules.Telemetry.Application.csproj" />
     <Project Path="src/Modules/Telemetry/Endpoints/CIOT.Modules.Telemetry.Endpoints.csproj" />
   </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Architecture/">
+    <Project Path="tests/Architecture/CIOT.Architecture.Tests/CIOT.Architecture.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Unit/">
+    <Project Path="tests/Unit/CIOT.Unit.Tests/CIOT.Unit.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Integration/">
+    <Project Path="tests/Integration/CIOT.Integration.Tests/CIOT.Integration.Tests.csproj" />
+  </Folder>
 </Solution>

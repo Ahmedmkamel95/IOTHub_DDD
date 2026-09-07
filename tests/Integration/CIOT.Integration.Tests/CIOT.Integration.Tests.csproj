@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="TUnit.Aspire" />
+    <PackageReference Include="TUnit.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Host\CIOT.Api\CIOT.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\Host\CIOT.AppHost\CIOT.AppHost.csproj" />
+  </ItemGroup>
+</Project>

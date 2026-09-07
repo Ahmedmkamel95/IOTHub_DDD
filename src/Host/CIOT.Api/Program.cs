@@ -1,4 +1,5 @@
-﻿using CIOT.Modules.Admin;
+﻿using CIOT.Api;
+using CIOT.Modules.Admin;
 using CIOT.Modules.Admin.Endpoints;
 using CIOT.Modules.Asset;
 using CIOT.Modules.Asset.Endpoints;
@@ -59,6 +60,11 @@ builder.Services.AddReportModule(builder.Configuration);
 builder.Services.AddLocalAdapterModule(builder.Configuration);
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.ApplyDatabaseMigrationsAsync();
+}
 
 // 4. Middleware Pipeline
 app.MapDefaultEndpoints();

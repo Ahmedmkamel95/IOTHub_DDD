@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="TngTech.ArchUnitNET" />
+    <PackageReference Include="TngTech.ArchUnitNET.TUnit" />
+    <PackageReference Include="TUnit.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Host\CIOT.Api\CIOT.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Admin\Domain\CIOT.Modules.Admin.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Admin\Application\CIOT.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Admin\Infrastructure\CIOT.Modules.Admin.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Admin\Endpoints\CIOT.Modules.Admin.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Asset\Domain\CIOT.Modules.Asset.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Asset\Application\CIOT.Modules.Asset.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Asset\Infrastructure\CIOT.Modules.Asset.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Asset\Endpoints\CIOT.Modules.Asset.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Audit\Domain\CIOT.Modules.Audit.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Audit\Application\CIOT.Modules.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Audit\Infrastructure\CIOT.Modules.Audit.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Audit\Endpoints\CIOT.Modules.Audit.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Catalog\Domain\CIOT.Modules.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Catalog\Application\CIOT.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Catalog\Infrastructure\CIOT.Modules.Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Catalog\Endpoints\CIOT.Modules.Catalog.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\CustomerOutlet\Domain\CIOT.Modules.CustomerOutlet.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\CustomerOutlet\Application\CIOT.Modules.CustomerOutlet.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\CustomerOutlet\Infrastructure\CIOT.Modules.CustomerOutlet.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\CustomerOutlet\Endpoints\CIOT.Modules.CustomerOutlet.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Devices\Domain\CIOT.Modules.Devices.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Devices\Application\CIOT.Modules.Devices.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Devices\Infrastructure\CIOT.Modules.Devices.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Devices\Endpoints\CIOT.Modules.Devices.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Identity\Domain\CIOT.Modules.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Identity\Application\CIOT.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Identity\Infrastructure\CIOT.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Identity\Endpoints\CIOT.Modules.Identity.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Integration\Domain\CIOT.Modules.Integration.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Integration\Application\CIOT.Modules.Integration.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Integration\Infrastructure\CIOT.Modules.Integration.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Integration\Endpoints\CIOT.Modules.Integration.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\LocalAdapter\Domain\CIOT.Modules.LocalAdapter.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\LocalAdapter\Application\CIOT.Modules.LocalAdapter.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\LocalAdapter\Infrastructure\CIOT.Modules.LocalAdapter.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\LocalAdapter\Endpoints\CIOT.Modules.LocalAdapter.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Mobile\Domain\CIOT.Modules.Mobile.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Mobile\Application\CIOT.Modules.Mobile.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Mobile\Infrastructure\CIOT.Modules.Mobile.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Mobile\Endpoints\CIOT.Modules.Mobile.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Org\Domain\CIOT.Modules.Org.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Org\Application\CIOT.Modules.Org.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Org\Infrastructure\CIOT.Modules.Org.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Org\Endpoints\CIOT.Modules.Org.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Provisioning\Domain\CIOT.Modules.Provisioning.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Provisioning\Application\CIOT.Modules.Provisioning.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Provisioning\Infrastructure\CIOT.Modules.Provisioning.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Provisioning\Endpoints\CIOT.Modules.Provisioning.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Report\Domain\CIOT.Modules.Report.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Report\Application\CIOT.Modules.Report.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Report\Infrastructure\CIOT.Modules.Report.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Report\Endpoints\CIOT.Modules.Report.Endpoints.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Telemetry\Domain\CIOT.Modules.Telemetry.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Telemetry\Application\CIOT.Modules.Telemetry.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Telemetry\Infrastructure\CIOT.Modules.Telemetry.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Modules\Telemetry\Endpoints\CIOT.Modules.Telemetry.Endpoints.csproj" />
+  </ItemGroup>
+</Project>
