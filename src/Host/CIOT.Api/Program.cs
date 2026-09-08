@@ -1,3 +1,4 @@
+
 ﻿using CIOT.Api;
 using CIOT.Modules.Admin;
 using CIOT.Modules.Admin.Endpoints;
@@ -28,6 +29,9 @@ using CIOT.Modules.Report.Endpoints;
 using CIOT.Modules.Telemetry;
 using CIOT.Modules.Telemetry.Endpoints;
 using CIOT.ServiceDefaults;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +64,104 @@ builder.Services.AddReportModule(builder.Configuration);
 builder.Services.AddLocalAdapterModule(builder.Configuration);
 
 var app = builder.Build();
+
+
+// Apply versioned migrations when explicitly requested; retain direct creation for local bootstrap.
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var dbContextTypes = new[]
+    {
+        typeof(CIOT.Modules.Identity.Infrastructure.IdentityDbContext),
+        typeof(CIOT.Modules.Org.Infrastructure.OrgDbContext),
+        typeof(CIOT.Modules.CustomerOutlet.Infrastructure.CustomerOutletDbContext),
+        typeof(CIOT.Modules.Asset.Infrastructure.AssetDbContext),
+        typeof(CIOT.Modules.Devices.Infrastructure.DevicesDbContext),
+        typeof(CIOT.Modules.Telemetry.Infrastructure.TelemetryDbContext),
+        typeof(CIOT.Modules.Provisioning.Infrastructure.ProvisioningDbContext),
+        typeof(CIOT.Modules.Catalog.Infrastructure.CatalogDbContext),
+        typeof(CIOT.Modules.Admin.Infrastructure.AdminDbContext),
+        typeof(CIOT.Modules.Mobile.Infrastructure.MobileDbContext),
+        typeof(CIOT.Modules.Integration.Infrastructure.IntegrationDbContext),
+        typeof(CIOT.Modules.Audit.Infrastructure.AuditDbContext),
+        typeof(CIOT.Modules.Report.Infrastructure.ReportDbContext),
+        typeof(CIOT.Modules.LocalAdapter.Infrastructure.LocalAdapterDbContext)
+    };
+
+    foreach (var type in dbContextTypes)
+    {
+        if (scope.ServiceProvider.GetRequiredService(type) is DbContext ctx)
+        {
+            try
+            {
+                if (args.Contains("--migrate"))
+                {
+                    await ctx.Database.MigrateAsync();
+                    logger.LogInformation("Database migrated for {Context}", type.Name);
+                }
+                else
+                {
+                    var creator = ctx.Database.GetService<IRelationalDatabaseCreator>();
+                    await creator.CreateTablesAsync();
+                    logger.LogInformation("Database tables created for {Context}", type.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (args.Contains("--migrate"))
+                {
+                    logger.LogError(ex, "Migration failed for {Context}", type.Name);
+                    throw;
+                }
+
+                logger.LogDebug(ex, "Tables already exist or skipped for {Context}", type.Name);
+            }
+        }
+    }
+}
+
+if (args.Contains("--apply-missing-tables"))
+{
+    using var scope = app.Services.CreateScope();
+    var ctx = scope.ServiceProvider.GetRequiredService<CIOT.Modules.Asset.Infrastructure.AssetDbContext>();
+    var scriptsDir = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "..", "scripts"));
+    var missingTablesPath = Path.Combine(scriptsDir, "add_missing_monolith_tables.sql");
+
+    if (!File.Exists(missingTablesPath))
+    {
+        throw new FileNotFoundException("Missing-table migration script was not found.", missingTablesPath);
+    }
+
+    var sql = await File.ReadAllTextAsync(missingTablesPath);
+    await ctx.Database.ExecuteSqlRawAsync(sql);
+    Console.WriteLine($"Missing monolithic tables applied from {missingTablesPath}.");
+    return;
+}
+
+if (args.Contains("--migrate"))
+{
+    Console.WriteLine("Database schema migration complete. Exiting.");
+    return;
+}
+
+if (args.Contains("--seed"))
+{
+    Console.WriteLine("Seeding database test data across all Bounded Contexts...");
+    using var scope = app.Services.CreateScope();
+    var ctx = scope.ServiceProvider.GetRequiredService<CIOT.Modules.Asset.Infrastructure.AssetDbContext>();
+    var scriptsDir = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "..", "scripts"));
+    var seedPath = Path.Combine(scriptsDir, "seed_all_modules.sql");
+    if (File.Exists(seedPath))
+    {
+        var sql = await File.ReadAllTextAsync(seedPath);
+        await ctx.Database.ExecuteSqlRawAsync(sql);
+        Console.WriteLine($"Database test data seeded successfully from {seedPath}!");
+    }
+    else
+    {
+        Console.WriteLine($"Seed file not found at {seedPath}");
+    }
+    return;
 
 if (app.Environment.IsDevelopment())
 {

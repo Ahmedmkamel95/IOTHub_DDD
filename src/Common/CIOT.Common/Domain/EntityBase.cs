@@ -1,5 +1,18 @@
 namespace CIOT.Common.Domain;
 
+public abstract class BaseEntity<TId>
+{
+    public TId Id { get; set; } = default!;
+}
+
+public interface ICreationAuditableEntity { }
+public interface IUpdateAuditableEntity { }
+public interface ICreationActorAuditableEntity { }
+public interface IUpdateActorAuditableEntity { }
+public interface IEffectiveDatingEntity { }
+public interface IOptimisticConcurrentEntity { }
+public interface ILocatibleEntity { }
+
 public interface IDomainEvent
 {
     DateTime OccurredOnUtc { get; }

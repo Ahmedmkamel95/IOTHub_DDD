@@ -1,5 +1,5 @@
 using CIOT.Common.Data;
-using CIOT.Modules.CustomerOutlet.Domain;
+using CIOT.Modules.CustomerOutlet.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.CustomerOutlet.Infrastructure;
@@ -15,11 +15,14 @@ public sealed class CustomerOutletDbContext : BaseDbContext
     public DbSet<OutletNote> OutletNotes => Set<OutletNote>();
     public DbSet<CustomerCluster> CustomerClusters => Set<CustomerCluster>();
     public DbSet<CustomerRelationship> CustomerRelationships => Set<CustomerRelationship>();
+    public DbSet<OutletAssignmentHistory> OutletAssignmentHistories => Set<OutletAssignmentHistory>();
+    public DbSet<CustomerClusterMember> CustomerClusterMembers => Set<CustomerClusterMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CustomerOutletDbContext).Assembly);
 
         modelBuilder.Entity<Customer>(b =>
         {
@@ -53,10 +56,10 @@ public sealed class CustomerOutletDbContext : BaseDbContext
         {
             b.ToTable("outlet_notes");
             b.HasKey(x => x.Id);
-            b.Property(x => x.NoteBody).HasMaxLength(2000).IsRequired();
+            b.Property(x => x.NoteText).HasMaxLength(2000).IsRequired();
 
-            b.HasOne(x => x.Outlet)
-                .WithMany(o => o.Notes)
+            b.HasOne<Outlet>()
+                .WithMany()
                 .HasForeignKey(x => x.OutletId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

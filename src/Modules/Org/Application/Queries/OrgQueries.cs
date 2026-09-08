@@ -51,15 +51,23 @@ public class OrgQueryHandlers :
 
     public async Task<Result<List<BusinessUnitDto>>> Handle(GetBusinessUnitsQuery request, CancellationToken cancellationToken)
     {
-        var query = _dbContext.BusinessUnits.AsNoTracking();
+        var query = from businessUnit in _dbContext.BusinessUnits.AsNoTracking()
+                    join businessUnitCountry in _dbContext.BusinessUnitCountries.AsNoTracking()
+                        on businessUnit.Id equals businessUnitCountry.BusinessUnitId
+                    select new { businessUnit, businessUnitCountry.CountryCode };
         if (!string.IsNullOrEmpty(request.CountryCode))
         {
-            query = query.Where(bu => bu.CountryCode.ToUpper() == request.CountryCode.ToUpper());
+            query = query.Where(x => x.CountryCode.ToUpper() == request.CountryCode.ToUpper());
         }
 
         var list = await query
-            .OrderBy(bu => bu.BusinessUnitCode)
-            .Select(bu => new BusinessUnitDto(bu.Id, bu.BusinessUnitCode, bu.BusinessUnitName, bu.CountryCode, bu.IsActive))
+            .OrderBy(x => x.businessUnit.BusinessUnitCode)
+            .Select(x => new BusinessUnitDto(
+                x.businessUnit.Id,
+                x.businessUnit.BusinessUnitCode,
+                x.businessUnit.DisplayName,
+                x.CountryCode,
+                x.businessUnit.IsActive))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);

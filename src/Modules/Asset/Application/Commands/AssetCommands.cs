@@ -2,11 +2,12 @@ using CIOT.Common.CQRS;
 using CIOT.Common.Contracts.CustomerOutlet;
 using CIOT.Common.Results;
 using CIOT.Modules.Asset.Application.Dtos;
-using CIOT.Modules.Asset.Domain;
+using CIOT.Modules.Asset.Domain.Entities;
 using CIOT.Modules.Asset.Infrastructure;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using AssetEntity = CIOT.Modules.Asset.Domain.Entities.Asset;
 
 namespace CIOT.Modules.Asset.Application.Commands;
 
@@ -52,35 +53,34 @@ public class AssetCommandHandlers :
             return Result.Failure<AssetDto>(Error.Conflict("Asset.Duplicate", $"Asset with SAP Equipment Number '{req.SapEquipmentNumber}' already exists."));
         }
 
-        var asset = new Domain.Asset
+        var asset = new AssetEntity
         {
             SapEquipmentNumber = req.SapEquipmentNumber,
             OemSerialNumber = req.OemSerialNumber,
             TechnicalId = req.TechnicalId,
             EquipmentModelId = req.EquipmentModelId,
             CountryCode = req.CountryCode.ToUpperInvariant(),
-            SapStatus = req.SapStatus,
-            IsActive = true
+            Status = req.SapStatus ?? "active"
         };
 
         _dbContext.Assets.Add(asset);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new AssetDto(asset.Id, asset.SapEquipmentNumber, asset.OemSerialNumber, asset.TechnicalId, asset.EquipmentModelId, asset.CountryCode, asset.SapStatus, asset.IsActive, null, asset.LastConnectionAtUtc));
+        return Result.Success(new AssetDto(asset.Id, asset.SapEquipmentNumber, asset.OemSerialNumber, asset.TechnicalId, asset.EquipmentModelId, asset.CountryCode, asset.Status, string.Equals(asset.Status, "active", StringComparison.OrdinalIgnoreCase), asset.CurrentOutletId, asset.LastConnectionAtUtc?.UtcDateTime));
     }
 
     public async Task<Result<AssetOutletAssignmentDto>> Handle(AssignAssetToOutletCommand command, CancellationToken cancellationToken)
     {
-        var asset = await _dbContext.Assets
-            .Include(a => a.OutletAssignments)
-            .FirstOrDefaultAsync(a => a.Id == command.AssetId, cancellationToken);
+        var asset = await _dbContext.Assets.FirstOrDefaultAsync(a => a.Id == command.AssetId, cancellationToken);
 
         if (asset == null)
         {
             return Result.Failure<AssetOutletAssignmentDto>(Error.NotFound("Asset.NotFound", $"Asset '{command.AssetId}' not found."));
         }
 
-        var newAssignment = asset.AssignToCustomerOutlet(command.Request.CustomerId, command.Request.OutletId);
+        var newAssignment = new AssetOutletAssignment { AssetId = asset.Id, CustomerId = command.Request.CustomerId, OutletId = command.Request.OutletId, AssignedAtUtc = DateTimeOffset.UtcNow, CreatedAtUtc = DateTimeOffset.UtcNow };
+        asset.CurrentOutletId = command.Request.OutletId;
+        _dbContext.AssetOutletAssignments.Add(newAssignment);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new AssetOutletAssignmentDto(
@@ -88,9 +88,9 @@ public class AssetCommandHandlers :
             newAssignment.AssetId,
             newAssignment.OutletId,
             newAssignment.CustomerId,
-            newAssignment.AssignedAtUtc,
-            newAssignment.UnassignedAtUtc,
-            newAssignment.IsCurrent));
+            newAssignment.AssignedAtUtc.UtcDateTime,
+            newAssignment.RemovedAtUtc?.UtcDateTime,
+            newAssignment.RemovedAtUtc == null));
     }
 }
 
@@ -107,9 +107,7 @@ public class AssignAssetToCustomerOutletCommandHandler : IRequestHandler<AssignA
 
     public async Task<Result<AssetOutletAssignmentDto>> Handle(AssignAssetToCustomerOutletCommand command, CancellationToken cancellationToken)
     {
-        var asset = await _dbContext.Assets
-            .Include(a => a.OutletAssignments)
-            .FirstOrDefaultAsync(a => a.Id == command.AssetId, cancellationToken);
+        var asset = await _dbContext.Assets.FirstOrDefaultAsync(a => a.Id == command.AssetId, cancellationToken);
 
         if (asset == null)
         {
@@ -128,8 +126,10 @@ public class AssignAssetToCustomerOutletCommandHandler : IRequestHandler<AssignA
             return Result.Failure<AssetOutletAssignmentDto>(validationResult.Error);
         }
 
-        // 2. Aggregate root enforces invariants
-        var newAssignment = asset.AssignToCustomerOutlet(command.Request.CustomerId, command.Request.OutletId);
+        var activeAssignments = await _dbContext.AssetOutletAssignments.Where(x => x.AssetId == asset.Id && x.RemovedAtUtc == null).ToListAsync(cancellationToken);
+        foreach (var assignment in activeAssignments) assignment.RemovedAtUtc = DateTimeOffset.UtcNow;
+        var newAssignment = new AssetOutletAssignment { AssetId = asset.Id, CustomerId = command.Request.CustomerId, OutletId = command.Request.OutletId, AssignedAtUtc = DateTimeOffset.UtcNow, CreatedAtUtc = DateTimeOffset.UtcNow };
+        asset.CurrentOutletId = command.Request.OutletId;
         _dbContext.AssetOutletAssignments.Add(newAssignment);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -139,8 +139,8 @@ public class AssignAssetToCustomerOutletCommandHandler : IRequestHandler<AssignA
             newAssignment.AssetId,
             newAssignment.OutletId,
             newAssignment.CustomerId,
-            newAssignment.AssignedAtUtc,
-            newAssignment.UnassignedAtUtc,
-            newAssignment.IsCurrent));
+            newAssignment.AssignedAtUtc.UtcDateTime,
+            newAssignment.RemovedAtUtc?.UtcDateTime,
+            newAssignment.RemovedAtUtc == null));
     }
 }

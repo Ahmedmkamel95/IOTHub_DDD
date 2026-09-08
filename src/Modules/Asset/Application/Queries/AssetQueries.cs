@@ -27,7 +27,6 @@ public class AssetQueryHandlers :
     {
         var query = _dbContext.Assets
             .AsNoTracking()
-            .Include(a => a.OutletAssignments)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(request.CountryCode))
@@ -46,10 +45,10 @@ public class AssetQueryHandlers :
                 a.TechnicalId,
                 a.EquipmentModelId,
                 a.CountryCode,
-                a.SapStatus,
-                a.IsActive,
-                a.OutletAssignments.Where(oa => oa.IsCurrent).Select(oa => oa.OutletId).FirstOrDefault(),
-                a.LastConnectionAtUtc
+                a.Status,
+                a.Status.ToLower() == "active",
+                a.CurrentOutletId,
+                a.LastConnectionAtUtc.HasValue ? a.LastConnectionAtUtc.Value.UtcDateTime : null
             ))
             .ToListAsync(cancellationToken);
 
@@ -60,7 +59,6 @@ public class AssetQueryHandlers :
     {
         var a = await _dbContext.Assets
             .AsNoTracking()
-            .Include(x => x.OutletAssignments)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         if (a == null)
@@ -73,10 +71,10 @@ public class AssetQueryHandlers :
             a.TechnicalId,
             a.EquipmentModelId,
             a.CountryCode,
-            a.SapStatus,
-            a.IsActive,
-            a.OutletAssignments.Where(oa => oa.IsCurrent).Select(oa => oa.OutletId).FirstOrDefault(),
-            a.LastConnectionAtUtc
+            a.Status,
+            string.Equals(a.Status, "active", StringComparison.OrdinalIgnoreCase),
+            a.CurrentOutletId,
+            a.LastConnectionAtUtc?.UtcDateTime
         );
 
         return Result.Success(dto);
@@ -93,9 +91,9 @@ public class AssetQueryHandlers :
                 oa.AssetId,
                 oa.OutletId,
                 oa.CustomerId,
-                oa.AssignedAtUtc,
-                oa.UnassignedAtUtc,
-                oa.IsCurrent
+                oa.AssignedAtUtc.UtcDateTime,
+                oa.RemovedAtUtc.HasValue ? oa.RemovedAtUtc.Value.UtcDateTime : null,
+                oa.RemovedAtUtc == null
             ))
             .ToListAsync(cancellationToken);
 

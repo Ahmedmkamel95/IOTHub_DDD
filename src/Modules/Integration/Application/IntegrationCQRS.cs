@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Integration.Domain;
+using CIOT.Modules.Integration.Domain.Entities;
 using CIOT.Modules.Integration.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,23 +30,27 @@ public class IntegrationHandlers :
         var source = new PartnerSource
         {
             SourceCode = req.SourceCode.ToUpperInvariant(),
-            DisplayName = req.DisplayName,
-            IntegrationType = req.IntegrationType,
-            EndpointUrl = req.EndpointUrl,
-            IsActive = true
+            PartnerCode = req.DisplayName,
+            SourceType = req.IntegrationType,
+            EndpointReference = req.EndpointUrl ?? string.Empty,
+            ImplementationWorker = string.Empty,
+            CheckpointFeedCode = string.Empty,
+            IdentityType = string.Empty,
+            ConfigurationJson = "{}",
+            Enabled = true
         };
 
         _dbContext.PartnerSources.Add(source);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new PartnerSourceDto(source.Id, source.SourceCode, source.DisplayName, source.IntegrationType, source.IsActive));
+        return Result.Success(new PartnerSourceDto(source.Id, source.SourceCode, source.PartnerCode, source.SourceType, source.Enabled));
     }
 
     public async Task<Result<List<PartnerSourceDto>>> Handle(GetPartnerSourcesQuery request, CancellationToken cancellationToken)
     {
         var list = await _dbContext.PartnerSources.AsNoTracking()
             .OrderBy(p => p.SourceCode)
-            .Select(p => new PartnerSourceDto(p.Id, p.SourceCode, p.DisplayName, p.IntegrationType, p.IsActive))
+            .Select(p => new PartnerSourceDto(p.Id, p.SourceCode, p.PartnerCode, p.SourceType, p.Enabled))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);

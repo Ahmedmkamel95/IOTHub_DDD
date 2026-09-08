@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Audit.Domain;
+using CIOT.Modules.Audit.Domain.Entities;
 using CIOT.Modules.Audit.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,12 +26,12 @@ public class AuditHandlers :
     {
         var audit = new AuditEvent
         {
-            UserId = command.UserId,
+            ActorUserId = command.UserId,
             Action = command.Action,
             EntityType = command.EntityType,
-            EntityId = command.EntityId,
-            ChangesJson = command.ChangesJson,
-            CreatedAtUtc = DateTime.UtcNow
+            EntityId = Guid.TryParse(command.EntityId, out var entityId) ? entityId : null,
+            AfterJson = command.ChangesJson,
+            EventAtUtc = DateTimeOffset.UtcNow
         };
 
         _dbContext.AuditEvents.Add(audit);
@@ -43,12 +43,12 @@ public class AuditHandlers :
     {
         var query = _dbContext.AuditEvents.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(request.EntityType)) query = query.Where(a => a.EntityType == request.EntityType);
-        if (!string.IsNullOrEmpty(request.EntityId)) query = query.Where(a => a.EntityId == request.EntityId);
+        if (Guid.TryParse(request.EntityId, out var entityId)) query = query.Where(a => a.EntityId == entityId);
 
         var list = await query
-            .OrderByDescending(a => a.CreatedAtUtc)
+            .OrderByDescending(a => a.EventAtUtc)
             .Take(request.Limit)
-            .Select(a => new AuditEventDto(a.Id, a.UserId, a.Action, a.EntityType, a.EntityId, a.CreatedAtUtc))
+            .Select(a => new AuditEventDto(a.Id, a.ActorUserId, a.Action, a.EntityType ?? string.Empty, a.EntityId.ToString()!, a.EventAtUtc.UtcDateTime))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);
