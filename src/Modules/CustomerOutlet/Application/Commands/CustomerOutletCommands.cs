@@ -1,7 +1,7 @@
 using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.CustomerOutlet.Application.Dtos;
-using CIOT.Modules.CustomerOutlet.Domain;
+using CIOT.Modules.CustomerOutlet.Domain.Entities;
 using CIOT.Modules.CustomerOutlet.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -30,7 +30,7 @@ public class CustomerOutletCommandHandlers :
     public async Task<Result<CustomerClusterDto>> Handle(CreateCustomerClusterCommand command, CancellationToken cancellationToken)
     {
         var req = command.Request;
-        var existing = await _dbContext.CustomerClusters.AnyAsync(c => c.ClusterCode.ToUpper() == req.ClusterCode.ToUpper(), cancellationToken);
+        var existing = await _dbContext.CustomerClusters.AnyAsync(c => c.ClusterCode != null && c.ClusterCode.ToUpper() == req.ClusterCode.ToUpper(), cancellationToken);
         if (existing)
         {
             return Result.Failure<CustomerClusterDto>(Error.Conflict("Cluster.Duplicate", $"Customer Cluster '{req.ClusterCode}' already exists."));
@@ -126,6 +126,6 @@ public class CustomerOutletCommandHandlers :
         _dbContext.OutletNotes.Add(note);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new OutletNoteDto(note.Id, note.OutletId, note.RelatedAssetId, note.NoteBody, note.CreatedAtUtc));
+        return Result.Success(new OutletNoteDto(note.Id, note.OutletId, note.RelatedAssetId, note.NoteBody, note.CreatedAtUtc.UtcDateTime));
     }
 }

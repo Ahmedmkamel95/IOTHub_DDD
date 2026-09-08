@@ -1,6 +1,6 @@
-﻿using CIOT.Common.CQRS;
+using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Admin.Domain;
+using CIOT.Modules.Admin.Domain.Entities;
 using CIOT.Modules.Admin.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -32,20 +32,20 @@ public class AdminHandlers :
             Manufacturer = req.Manufacturer,
             Model = req.Model,
             MachineType = req.MachineType,
-            IsActive = true
+            Status = "active"
         };
 
         _dbContext.EquipmentModels.Add(model);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new EquipmentModelDto(model.Id, model.Manufacturer, model.Model, model.MachineType, model.IsActive));
+        return Result.Success(new EquipmentModelDto(model.Id, model.Manufacturer, model.Model, model.MachineType, string.Equals(model.Status, "active", StringComparison.OrdinalIgnoreCase)));
     }
 
     public async Task<Result<List<EquipmentModelDto>>> Handle(GetEquipmentModelsQuery request, CancellationToken cancellationToken)
     {
         var list = await _dbContext.EquipmentModels.AsNoTracking()
             .OrderBy(m => m.Manufacturer).ThenBy(m => m.Model)
-            .Select(m => new EquipmentModelDto(m.Id, m.Manufacturer, m.Model, m.MachineType, m.IsActive))
+            .Select(m => new EquipmentModelDto(m.Id, m.Manufacturer, m.Model, m.MachineType, m.Status.ToLower() == "active"))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);

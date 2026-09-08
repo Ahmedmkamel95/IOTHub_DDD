@@ -1,5 +1,5 @@
-﻿using CIOT.Common.Data;
-using CIOT.Modules.Report.Domain;
+using CIOT.Common.Data;
+using CIOT.Modules.Report.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.Report.Infrastructure;
@@ -18,6 +18,7 @@ public sealed class ReportDbContext : BaseDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReportDbContext).Assembly);
 
         modelBuilder.Entity<ReportDefinition>(b =>
         {
@@ -30,7 +31,7 @@ public sealed class ReportDbContext : BaseDbContext
         {
             b.ToTable("report_runs");
             b.HasKey(x => x.Id);
-            b.HasIndex(x => new { x.ReportDefinitionId, x.Status });
+            b.HasIndex(x => new { x.ReportCode, x.Status });
         });
 
         modelBuilder.Entity<ExportJob>(b =>

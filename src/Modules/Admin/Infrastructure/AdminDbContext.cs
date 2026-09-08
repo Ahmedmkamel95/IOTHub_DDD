@@ -1,5 +1,5 @@
-﻿using CIOT.Common.Data;
-using CIOT.Modules.Admin.Domain;
+using CIOT.Common.Data;
+using CIOT.Modules.Admin.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.Admin.Infrastructure;
@@ -10,33 +10,26 @@ public sealed class AdminDbContext : BaseDbContext
 
     public AdminDbContext(DbContextOptions<AdminDbContext> options) : base(options) { }
 
+    public DbSet<AssetRecipe> AssetRecipes => Set<AssetRecipe>();
+    public DbSet<AssetTargetDefault> AssetTargetDefaults => Set<AssetTargetDefault>();
+    public DbSet<BpTargetConfiguration> BpTargetConfigurations => Set<BpTargetConfiguration>();
+    public DbSet<DeviceModelControlCatalog> DeviceModelControlCatalogs => Set<DeviceModelControlCatalog>();
     public DbSet<EquipmentModel> EquipmentModels => Set<EquipmentModel>();
-    public DbSet<OperationalStatusPolicy> OperationalStatusPolicies => Set<OperationalStatusPolicy>();
+    public DbSet<EquipmentModelMedia> EquipmentModelMedias => Set<EquipmentModelMedia>();
     public DbSet<ErrorMapping> ErrorMappings => Set<ErrorMapping>();
+    public DbSet<ExtractionQualityPolicy> ExtractionQualityPolicies => Set<ExtractionQualityPolicy>();
+    public DbSet<OperationalStatusPolicy> OperationalStatusPolicies => Set<OperationalStatusPolicy>();
+    public DbSet<RecipeConfiguration> RecipeConfigurations => Set<RecipeConfiguration>();
+    public DbSet<RecipeTemplate> RecipeTemplates => Set<RecipeTemplate>();
+    public DbSet<WaterFilterModel> WaterFilterModels => Set<WaterFilterModel>();
+    public DbSet<VpmTarget> VpmTargets => Set<VpmTarget>();
+ 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
 
-        modelBuilder.Entity<EquipmentModel>(b =>
-        {
-            b.ToTable("equipment_models");
-            b.HasKey(x => x.Id);
-            b.HasIndex(x => new { x.Manufacturer, x.Model }).IsUnique();
-        });
-
-        modelBuilder.Entity<OperationalStatusPolicy>(b =>
-        {
-            b.ToTable("operational_status_policies");
-            b.HasKey(x => x.Id);
-        });
-
-        modelBuilder.Entity<ErrorMapping>(b =>
-        {
-            b.ToTable("error_mappings");
-            b.HasKey(x => x.Id);
-            b.HasIndex(x => new { x.Manufacturer, x.RawErrorCode });
-        });
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AdminDbContext).Assembly);
     }
 }

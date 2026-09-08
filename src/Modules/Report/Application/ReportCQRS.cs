@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Report.Domain;
+using CIOT.Modules.Report.Domain.Entities;
 using CIOT.Modules.Report.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -31,21 +31,21 @@ public class ReportHandlers :
         {
             ReportCode = req.ReportCode.ToUpperInvariant(),
             DisplayName = req.DisplayName,
-            ReportType = req.ReportType,
+            Category = req.ReportType,
             IsActive = true
         };
 
         _dbContext.ReportDefinitions.Add(r);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new ReportDefinitionDto(r.Id, r.ReportCode, r.DisplayName, r.ReportType, r.IsActive));
+        return Result.Success(new ReportDefinitionDto(r.Id, r.ReportCode, r.DisplayName, r.Category ?? string.Empty, r.IsActive));
     }
 
     public async Task<Result<List<ReportDefinitionDto>>> Handle(GetReportDefinitionsQuery request, CancellationToken cancellationToken)
     {
         var list = await _dbContext.ReportDefinitions.AsNoTracking()
             .OrderBy(r => r.ReportCode)
-            .Select(r => new ReportDefinitionDto(r.Id, r.ReportCode, r.DisplayName, r.ReportType, r.IsActive))
+            .Select(r => new ReportDefinitionDto(r.Id, r.ReportCode, r.DisplayName, r.Category ?? string.Empty, r.IsActive))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);

@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.LocalAdapter.Domain;
+using CIOT.Modules.LocalAdapter.Domain.Entities;
 using CIOT.Modules.LocalAdapter.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,25 +26,27 @@ public class LocalAdapterHandlers :
     {
         var effect = new DeviceProjectionEffect
         {
+            OutboxId = Guid.NewGuid(),
             DeviceId = command.DeviceId,
-            EffectType = command.EffectType,
-            EffectPayloadJson = command.PayloadJson,
-            AppliedAtUtc = DateTime.UtcNow,
-            Status = "Applied"
+            CommandType = command.EffectType,
+            ProjectionHash = string.Empty,
+            ProjectionJson = command.PayloadJson,
+            FirstAppliedAtUtc = DateTimeOffset.UtcNow,
+            LastAppliedAtUtc = DateTimeOffset.UtcNow
         };
 
         _dbContext.DeviceProjectionEffects.Add(effect);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new DeviceProjectionEffectDto(effect.Id, effect.DeviceId, effect.EffectType, effect.Status, effect.AppliedAtUtc));
+        return Result.Success(new DeviceProjectionEffectDto(effect.OutboxId, effect.DeviceId, effect.CommandType, "Applied", effect.LastAppliedAtUtc.UtcDateTime));
     }
 
     public async Task<Result<List<DeviceProjectionEffectDto>>> Handle(GetDeviceEffectsQuery request, CancellationToken cancellationToken)
     {
         var list = await _dbContext.DeviceProjectionEffects.AsNoTracking()
             .Where(e => e.DeviceId == request.DeviceId)
-            .OrderByDescending(e => e.AppliedAtUtc)
-            .Select(e => new DeviceProjectionEffectDto(e.Id, e.DeviceId, e.EffectType, e.Status, e.AppliedAtUtc))
+            .OrderByDescending(e => e.LastAppliedAtUtc)
+            .Select(e => new DeviceProjectionEffectDto(e.OutboxId, e.DeviceId, e.CommandType, "Applied", e.LastAppliedAtUtc.UtcDateTime))
             .ToListAsync(cancellationToken);
 
         return Result.Success(list);

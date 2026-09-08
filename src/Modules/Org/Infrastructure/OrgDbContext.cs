@@ -1,5 +1,5 @@
-﻿using CIOT.Common.Data;
-using CIOT.Modules.Org.Domain;
+using CIOT.Common.Data;
+using CIOT.Modules.Org.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.Org.Infrastructure;
@@ -20,6 +20,7 @@ public sealed class OrgDbContext : BaseDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrgDbContext).Assembly);
 
         modelBuilder.Entity<Country>(b =>
         {
@@ -35,12 +36,6 @@ public sealed class OrgDbContext : BaseDbContext
             b.HasKey(x => x.Id);
             b.HasIndex(x => x.BusinessUnitCode).IsUnique();
             b.Property(x => x.BusinessUnitCode).HasMaxLength(50).IsRequired();
-            b.Property(x => x.CountryCode).HasMaxLength(10).IsRequired();
-
-            b.HasOne(x => x.Country)
-                .WithMany(c => c.BusinessUnits)
-                .HasForeignKey(x => x.CountryCode)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<SalesTerritory>(b =>
@@ -70,6 +65,14 @@ public sealed class OrgDbContext : BaseDbContext
         {
             b.ToTable("business_unit_countries");
             b.HasKey(x => new { x.BusinessUnitId, x.CountryCode });
+            b.HasOne<BusinessUnit>()
+                .WithMany(x => x.BusinessUnitCountries)
+                .HasForeignKey(x => x.BusinessUnitId)
+                .OnDelete(DeleteBehavior.Cascade);
+            b.HasOne<Country>()
+                .WithMany(x => x.BusinessUnitCountries)
+                .HasForeignKey(x => x.CountryCode)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Telemetry.Application.Dtos;
-using CIOT.Modules.Telemetry.Domain;
+using CIOT.Modules.Telemetry.Domain.Entities;
 using CIOT.Modules.Telemetry.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -34,17 +34,17 @@ public class TelemetryCommandHandlers :
     public async Task<Result<int>> Handle(IngestTelemetryCommand command, CancellationToken cancellationToken)
     {
         var req = command.Request;
-        var measuredAt = req.TimestampUtc ?? DateTime.UtcNow;
+        var measuredAt = new DateTimeOffset(req.TimestampUtc ?? DateTime.UtcNow, TimeSpan.Zero);
 
         var measurements = req.Metrics.Select(m => new NormalizedMeasurement
         {
             DeviceId = req.DeviceId,
             AssetId = req.AssetId,
-            MeasuredAtUtc = measuredAt,
+            ObservedAtUtc = measuredAt,
             MetricKey = m.MetricKey,
-            NumericValue = m.Value,
-            UnitOfMeasure = m.Unit,
-            CreatedAtUtc = DateTime.UtcNow
+            ValueNumeric = (decimal)m.Value,
+            Unit = m.Unit,
+            CreatedAtUtc = DateTimeOffset.UtcNow
         }).ToList();
 
         _dbContext.NormalizedMeasurements.AddRange(measurements);
@@ -98,16 +98,19 @@ public class TelemetryCommandHandlers :
     {
         var raw = new RawMessage
         {
+            SourceType = "manual",
+            SourceName = "telemetry-api",
+            MessageId = Guid.NewGuid().ToString("N"),
             PayloadJson = command.PayloadJson,
             DeviceIdentifier = command.DeviceIdentifier,
             AssetIdentifier = command.AssetIdentifier,
             Status = "Received",
-            ReceivedAtUtc = DateTime.UtcNow
+            ReceivedAtUtc = DateTimeOffset.UtcNow
         };
 
         _dbContext.RawMessages.Add(raw);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new RawMessageDto(raw.Id, raw.MessageId, raw.Status, raw.ReceivedAtUtc));
+        return Result.Success(new RawMessageDto(raw.Id, raw.MessageId, raw.Status, raw.ReceivedAtUtc.UtcDateTime));
     }
 }

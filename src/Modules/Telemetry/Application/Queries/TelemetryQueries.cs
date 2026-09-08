@@ -1,6 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Telemetry.Application.Dtos;
+using CIOT.Modules.Telemetry.Domain.Entities;
 using CIOT.Modules.Telemetry.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,7 @@ public class TelemetryQueryHandlers :
         var dto = new AssetCurrentStateDto(
             state.AssetId,
             state.DeviceId,
-            state.LastTelemetryAtUtc,
+            state.LastTelemetryAtUtc.UtcDateTime,
             state.MachineStatus,
             state.WaterLitersToday,
             state.EnergyKwhToday,
@@ -54,16 +55,16 @@ public class TelemetryQueryHandlers :
         if (!string.IsNullOrEmpty(request.MetricKey)) query = query.Where(m => m.MetricKey == request.MetricKey);
 
         var list = await query
-            .OrderByDescending(m => m.MeasuredAtUtc)
+            .OrderByDescending(m => m.ObservedAtUtc)
             .Take(request.Limit)
             .Select(m => new MeasurementDto(
                 m.Id,
                 m.DeviceId,
                 m.AssetId,
-                m.MeasuredAtUtc,
+                m.ObservedAtUtc.UtcDateTime,
                 m.MetricKey,
-                m.NumericValue,
-                m.UnitOfMeasure
+                (double)(m.ValueNumeric ?? 0),
+                m.Unit
             ))
             .ToListAsync(cancellationToken);
 

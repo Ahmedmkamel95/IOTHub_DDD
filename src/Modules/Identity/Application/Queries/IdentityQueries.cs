@@ -1,6 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Identity.Application.Dtos;
+using CIOT.Modules.Identity.Domain.Entities;
 using CIOT.Modules.Identity.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -43,9 +44,9 @@ public class IdentityQueryHandlers :
             user.Status,
             user.AuthProvider,
             user.ExternalIdentityId,
-            user.RoleAssignments.Select(ra => ra.Role.Name).ToList(),
-            user.CreatedAtUtc,
-            user.LastLoginAtUtc
+            user.RoleAssignments.Select(ra => ra.Role.RoleCode).ToList(),
+            user.CreatedAtUtc.UtcDateTime,
+            user.LastLoginAtUtc?.UtcDateTime
         );
 
         return Result.Success(dto);
@@ -77,9 +78,9 @@ public class IdentityQueryHandlers :
                 user.Status,
                 user.AuthProvider,
                 user.ExternalIdentityId,
-                user.RoleAssignments.Select(ra => ra.Role.Name).ToList(),
-                user.CreatedAtUtc,
-                user.LastLoginAtUtc
+                user.RoleAssignments.Select(ra => ra.Role.RoleCode).ToList(),
+                user.CreatedAtUtc.UtcDateTime,
+                user.LastLoginAtUtc.HasValue ? user.LastLoginAtUtc.Value.UtcDateTime : null
             ))
             .ToListAsync(cancellationToken);
 
@@ -90,12 +91,12 @@ public class IdentityQueryHandlers :
     {
         var roles = await _dbContext.Roles
             .AsNoTracking()
-            .Include(r => r.RolePermissions).ThenInclude(rp => rp.Permission)
+            .Include(r => r.Permissions).ThenInclude(rp => rp.Permission)
             .Select(r => new RoleDto(
                 r.Id,
-                r.Name,
+                r.RoleCode,
                 r.Description,
-                r.RolePermissions.Select(rp => rp.Permission.Code).ToList()
+                r.Permissions.Select(rp => rp.Permission.PermissionCode).ToList()
             ))
             .ToListAsync(cancellationToken);
 

@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Mobile.Domain;
+using CIOT.Modules.Mobile.Domain.Entities;
 using CIOT.Modules.Mobile.Infrastructure;
 using MediatR;
 
@@ -26,24 +26,33 @@ public class MobileHandlers : IRequestHandler<SyncOfflineBatchCommand, Result<Sy
         var req = command.Request;
         var batch = new OfflineBatch
         {
-            TechnicianUserId = req.TechnicianUserId,
-            DeviceClientSessionId = req.DeviceClientSessionId,
+            BatchId = req.DeviceClientSessionId,
+            RequestedByUserId = req.TechnicianUserId,
             ActionCount = req.Actions.Count,
+            CompletedCount = req.Actions.Count,
             Status = "Completed",
-            ProcessedAtUtc = DateTime.UtcNow
+            CorrelationId = req.DeviceClientSessionId,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            ResultExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30)
         };
+
+        _dbContext.OfflineBatches.Add(batch);
 
         foreach (var action in req.Actions)
         {
-            batch.Results.Add(new OfflineActionResult
+            _dbContext.OfflineActionResults.Add(new OfflineActionResult
             {
+                FirstBatchId = batch.Id,
+                RequestedByUserId = req.TechnicianUserId,
                 ClientActionId = action.ClientActionId,
                 ActionType = action.ActionType,
-                Success = true
+                PayloadHash = action.PayloadJson,
+                Status = "Completed",
+                ProcessedAtUtc = DateTimeOffset.UtcNow
             });
         }
 
-        _dbContext.OfflineBatches.Add(batch);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new SyncOfflineBatchResponse(batch.Id, batch.ActionCount, true));

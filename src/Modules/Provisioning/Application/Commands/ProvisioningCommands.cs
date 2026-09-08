@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Provisioning.Application.Dtos;
-using CIOT.Modules.Provisioning.Domain;
+using CIOT.Modules.Provisioning.Domain.Entities;
 using CIOT.Modules.Provisioning.Infrastructure;
 using FluentValidation;
 using MediatR;

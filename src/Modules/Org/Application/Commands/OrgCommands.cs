@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Org.Application.Dtos;
-using CIOT.Modules.Org.Domain;
+using CIOT.Modules.Org.Domain.Entities;
 using CIOT.Modules.Org.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -69,15 +69,20 @@ public class OrgCommandHandlers :
         var bu = new BusinessUnit
         {
             BusinessUnitCode = req.BusinessUnitCode.ToUpperInvariant(),
-            BusinessUnitName = req.BusinessUnitName,
-            CountryCode = req.CountryCode.ToUpperInvariant(),
+            DisplayName = req.BusinessUnitName ?? req.BusinessUnitCode,
             IsActive = true
         };
 
         _dbContext.BusinessUnits.Add(bu);
+        _dbContext.BusinessUnitCountries.Add(new BusinessUnitCountry
+        {
+            BusinessUnitId = bu.Id,
+            CountryCode = req.CountryCode.ToUpperInvariant(),
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new BusinessUnitDto(bu.Id, bu.BusinessUnitCode, bu.BusinessUnitName, bu.CountryCode, bu.IsActive));
+        return Result.Success(new BusinessUnitDto(bu.Id, bu.BusinessUnitCode, bu.DisplayName, req.CountryCode.ToUpperInvariant(), bu.IsActive));
     }
 
     public async Task<Result<SalesOrganizationDto>> Handle(CreateSalesOrganizationCommand command, CancellationToken cancellationToken)

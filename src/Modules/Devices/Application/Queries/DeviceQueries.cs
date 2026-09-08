@@ -45,8 +45,8 @@ public class DeviceQueryHandlers :
                 d.CountryCode,
                 d.LifecycleStatus,
                 d.FirmwareVersion,
-                d.FirstSeenAtUtc,
-                d.LastSeenAtUtc,
+                d.FirstSeenAtUtc.HasValue ? d.FirstSeenAtUtc.Value.UtcDateTime : null,
+                d.LastSeenAtUtc.HasValue ? d.LastSeenAtUtc.Value.UtcDateTime : null,
                 d.Assignments.Where(a => a.UnpairedAtUtc == null).Select(a => (Guid?)a.AssetId).FirstOrDefault()
             ))
             .ToListAsync(cancellationToken);
@@ -73,8 +73,8 @@ public class DeviceQueryHandlers :
             d.CountryCode,
             d.LifecycleStatus,
             d.FirmwareVersion,
-            d.FirstSeenAtUtc,
-            d.LastSeenAtUtc,
+            d.FirstSeenAtUtc?.UtcDateTime,
+            d.LastSeenAtUtc?.UtcDateTime,
             d.Assignments.Where(a => a.UnpairedAtUtc == null).Select(a => (Guid?)a.AssetId).FirstOrDefault()
         );
 
@@ -91,12 +91,12 @@ public class DeviceQueryHandlers :
                 c.Id,
                 c.DeviceId,
                 c.CommandType,
-                c.PayloadJson,
-                c.DeliveryPath,
-                c.Status,
-                c.EnqueuedAtUtc,
-                c.CompletedAtUtc,
-                c.LastError
+                c.RequestPayloadJson ?? string.Empty,
+                "C2D",
+                c.CommandStatus,
+                c.RequestedAtUtc.UtcDateTime,
+                c.CompletedAtUtc.HasValue ? c.CompletedAtUtc.Value.UtcDateTime : null,
+                c.ResponsePayloadJson
             ))
             .ToListAsync(cancellationToken);
 

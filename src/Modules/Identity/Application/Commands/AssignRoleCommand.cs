@@ -1,6 +1,6 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
-using CIOT.Modules.Identity.Domain;
+using CIOT.Modules.Identity.Domain.Entities;
 using CIOT.Modules.Identity.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +27,7 @@ public class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand, Resul
         if (user == null)
             return Result.Failure(Error.NotFound("User.NotFound", $"User with ID '{command.UserId}' not found."));
 
-        var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == command.RoleName, cancellationToken);
+        var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.RoleCode == command.RoleName, cancellationToken);
         if (role == null)
             return Result.Failure(Error.NotFound("Role.NotFound", $"Role '{command.RoleName}' does not exist."));
 

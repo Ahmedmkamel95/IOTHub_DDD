@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Catalog.Application.Dtos;
-using CIOT.Modules.Catalog.Domain;
+using CIOT.Modules.Catalog.Domain.Entities;
 using CIOT.Modules.Catalog.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

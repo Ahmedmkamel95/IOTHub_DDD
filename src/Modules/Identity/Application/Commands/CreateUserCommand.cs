@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Identity.Application.Dtos;
-using CIOT.Modules.Identity.Domain;
+using CIOT.Modules.Identity.Domain.Entities;
 using CIOT.Modules.Identity.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -54,12 +54,12 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Resul
         if (req.RoleNames != null && req.RoleNames.Count != 0)
         {
             var roles = await _dbContext.Roles
-                .Where(r => req.RoleNames.Contains(r.Name))
+                .Where(r => req.RoleNames.Contains(r.RoleCode))
                 .ToListAsync(cancellationToken);
 
             foreach (var role in roles)
             {
-                user.RoleAssignments.Add(new UserRoleAssignment { Role = role, UserAccount = user });
+                user.RoleAssignments.Add(new UserRoleAssignment { Role = role, User = user });
             }
         }
 
@@ -76,9 +76,9 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Resul
             user.Status,
             user.AuthProvider,
             user.ExternalIdentityId,
-            user.RoleAssignments.Select(ra => ra.Role.Name).ToList(),
-            user.CreatedAtUtc,
-            user.LastLoginAtUtc
+            user.RoleAssignments.Select(ra => ra.Role.RoleCode).ToList(),
+            user.CreatedAtUtc.UtcDateTime,
+            user.LastLoginAtUtc?.UtcDateTime
         );
 
         return Result.Success(dto);

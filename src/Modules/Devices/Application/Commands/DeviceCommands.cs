@@ -1,7 +1,7 @@
 ﻿using CIOT.Common.CQRS;
 using CIOT.Common.Results;
 using CIOT.Modules.Devices.Application.Dtos;
-using CIOT.Modules.Devices.Domain;
+using CIOT.Modules.Devices.Domain.Entities;
 using CIOT.Modules.Devices.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -69,8 +69,8 @@ public class DeviceCommandHandlers :
             device.CountryCode,
             device.LifecycleStatus,
             device.FirmwareVersion,
-            device.FirstSeenAtUtc,
-            device.LastSeenAtUtc,
+            device.FirstSeenAtUtc?.UtcDateTime,
+            device.LastSeenAtUtc?.UtcDateTime,
             null
         ));
     }
@@ -83,9 +83,9 @@ public class DeviceCommandHandlers :
 
         switch (command.LifecycleStatus.ToLowerInvariant())
         {
-            case "active": device.Activate(); break;
-            case "suspended": device.Suspend(); break;
-            case "decommissioned": device.Decommission(); break;
+            case "active": device.LifecycleStatus = "active"; device.FirstSeenAtUtc ??= DateTimeOffset.UtcNow; break;
+            case "suspended": device.LifecycleStatus = "suspended"; break;
+            case "decommissioned": device.LifecycleStatus = "decommissioned"; device.DeactivatedAtUtc = DateTimeOffset.UtcNow; break;
             default: device.LifecycleStatus = command.LifecycleStatus; break;
         }
 
@@ -103,10 +103,9 @@ public class DeviceCommandHandlers :
         {
             DeviceId = device.Id,
             CommandType = command.Request.CommandType,
-            PayloadJson = command.Request.PayloadJson,
-            DeliveryPath = command.Request.DeliveryPath,
-            Status = "Enqueued",
-            EnqueuedAtUtc = DateTime.UtcNow
+            RequestPayloadJson = command.Request.PayloadJson,
+            CommandStatus = "Enqueued",
+            RequestedAtUtc = DateTimeOffset.UtcNow
         };
 
         _dbContext.DeviceCommands.Add(cmd);
@@ -116,12 +115,12 @@ public class DeviceCommandHandlers :
             cmd.Id,
             cmd.DeviceId,
             cmd.CommandType,
-            cmd.PayloadJson,
-            cmd.DeliveryPath,
-            cmd.Status,
-            cmd.EnqueuedAtUtc,
-            cmd.CompletedAtUtc,
-            cmd.LastError
+            cmd.RequestPayloadJson ?? string.Empty,
+            command.Request.DeliveryPath,
+            cmd.CommandStatus,
+            cmd.RequestedAtUtc.UtcDateTime,
+            cmd.CompletedAtUtc?.UtcDateTime,
+            cmd.ResponsePayloadJson
         ));
     }
 
@@ -135,9 +134,9 @@ public class DeviceCommandHandlers :
             return Result.Failure(Error.NotFound("Device.NotFound", $"Device '{command.DeviceId}' not found."));
 
         // Unpair previous active assignments
-        foreach (var assignment in device.Assignments.Where(a => a.IsActive))
+        foreach (var assignment in device.Assignments.Where(a => a.UnpairedAtUtc == null))
         {
-            assignment.Unpair();
+            assignment.UnpairedAtUtc = DateTimeOffset.UtcNow;
         }
 
         var newAssignment = new DeviceAssignment
@@ -164,11 +163,14 @@ public class DeviceCommandHandlers :
 
         if (command.Success)
         {
-            cmd.MarkCompleted();
+            cmd.CommandStatus = "Completed";
+            cmd.CompletedAtUtc = DateTimeOffset.UtcNow;
         }
         else
         {
-            cmd.MarkFailed(command.ErrorMessage ?? "Device returned execution failure.");
+            cmd.CommandStatus = "Failed";
+            cmd.ResponsePayloadJson = command.ErrorMessage ?? "Device returned execution failure.";
+            cmd.CompletedAtUtc = DateTimeOffset.UtcNow;
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

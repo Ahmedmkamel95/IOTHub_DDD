@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using CIOT.Modules.Identity.Domain;
+using CIOT.Modules.Identity.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,7 +49,7 @@ public sealed class EntraIdClaimsTransformation : IClaimsTransformation
         var user = await dbContext.UserAccounts
             .Include(u => u.RoleAssignments)
                 .ThenInclude(ra => ra.Role)
-                    .ThenInclude(r => r.RolePermissions)
+                    .ThenInclude(r => r.Permissions)
                         .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(u =>
                 (externalId != null && u.ExternalIdentityId == externalId) ||
@@ -80,10 +80,12 @@ public sealed class EntraIdClaimsTransformation : IClaimsTransformation
         }
         else
         {
-            user.RecordLogin();
+            user.LastLoginAtUtc = DateTimeOffset.UtcNow;
             if (string.IsNullOrEmpty(user.ExternalIdentityId) && !string.IsNullOrEmpty(externalId))
             {
-                user.BindExternalIdentity(externalId, user.UserType == "Internal" ? "EntraID" : "EntraExternalId");
+                user.ExternalIdentityId = externalId;
+                user.AuthProvider = user.UserType == "Internal" ? "EntraID" : "EntraExternalId";
+                user.ExternalIdentityBoundAtUtc = DateTimeOffset.UtcNow;
             }
             await dbContext.SaveChangesAsync();
         }
@@ -95,10 +97,10 @@ public sealed class EntraIdClaimsTransformation : IClaimsTransformation
 
         foreach (var ra in user.RoleAssignments)
         {
-            identity.AddClaim(new Claim(ClaimTypes.Role, ra.Role.Name));
-            foreach (var rp in ra.Role.RolePermissions)
+            identity.AddClaim(new Claim(ClaimTypes.Role, ra.Role.RoleCode));
+            foreach (var rp in ra.Role.Permissions)
             {
-                identity.AddClaim(new Claim("permission", rp.Permission.Code));
+                identity.AddClaim(new Claim("permission", rp.Permission.PermissionCode));
             }
         }
 

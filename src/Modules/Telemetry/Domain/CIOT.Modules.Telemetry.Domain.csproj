@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
     <ProjectReference Include="..\..\..\Common\CIOT.Common\CIOT.Common.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
-﻿using CIOT.Common.Data;
-using CIOT.Modules.Catalog.Domain;
+using CIOT.Common.Data;
+using CIOT.Modules.Catalog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.Catalog.Infrastructure;
@@ -17,6 +17,7 @@ public sealed class CatalogDbContext : BaseDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly);
 
         modelBuilder.Entity<Material>(b =>
         {

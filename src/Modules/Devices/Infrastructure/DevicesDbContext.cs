@@ -1,5 +1,5 @@
-﻿using CIOT.Common.Data;
-using CIOT.Modules.Devices.Domain;
+using CIOT.Common.Data;
+using CIOT.Modules.Devices.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CIOT.Modules.Devices.Infrastructure;
@@ -14,11 +14,27 @@ public sealed class DevicesDbContext : BaseDbContext
     public DbSet<DeviceAssignment> DeviceAssignments => Set<DeviceAssignment>();
     public DbSet<DeviceCommand> DeviceCommands => Set<DeviceCommand>();
     public DbSet<DeviceCertificate> DeviceCertificates => Set<DeviceCertificate>();
+    public DbSet<DeviceIdentifier> DeviceIdentifiers => Set<DeviceIdentifier>();
+    public DbSet<DeviceFirmwareAssignment> DeviceFirmwareAssignments => Set<DeviceFirmwareAssignment>();
+    public DbSet<DeviceFirmwareStatusEvent> DeviceFirmwareStatusEvents => Set<DeviceFirmwareStatusEvent>();
+    public DbSet<DeviceBusinessAssignmentSchedule> DeviceBusinessAssignmentSchedules => Set<DeviceBusinessAssignmentSchedule>();
+    public DbSet<DeviceBulkAction> DeviceBulkActions => Set<DeviceBulkAction>();
+    public DbSet<DeviceBulkActionItem> DeviceBulkActionItems => Set<DeviceBulkActionItem>();
+    public DbSet<DeviceFirmwareState> DeviceFirmwareStates => Set<DeviceFirmwareState>();
+    public DbSet<DeviceLifecycleState> DeviceLifecycleStates => Set<DeviceLifecycleState>();
+    public DbSet<DeviceLifecycleOutbox> DeviceLifecycleOutboxes => Set<DeviceLifecycleOutbox>();
+    public DbSet<FirmwareArtifact> FirmwareArtifacts => Set<FirmwareArtifact>();
+    public DbSet<FirmwareArtifactDeviceModel> FirmwareArtifactDeviceModels => Set<FirmwareArtifactDeviceModel>();
+    public DbSet<FirmwareArtifactEquipmentModel> FirmwareArtifactEquipmentModels => Set<FirmwareArtifactEquipmentModel>();
+    public DbSet<FotaDownloadGrant> FotaDownloadGrants => Set<FotaDownloadGrant>();
+    public DbSet<FotaUpdateSession> FotaUpdateSessions => Set<FotaUpdateSession>();
+    public DbSet<FirmwareAssignmentHandoffOutbox> FirmwareAssignmentHandoffOutboxes => Set<FirmwareAssignmentHandoffOutbox>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DevicesDbContext).Assembly);
 
         modelBuilder.Entity<Device>(b =>
         {
@@ -47,12 +63,12 @@ public sealed class DevicesDbContext : BaseDbContext
         {
             b.ToTable("device_commands");
             b.HasKey(x => x.Id);
-            b.HasIndex(x => new { x.DeviceId, x.Status });
+            b.HasIndex(x => new { x.DeviceId, x.CommandStatus });
             b.Property(x => x.CommandType).HasMaxLength(100).IsRequired();
-            b.Property(x => x.Status).HasMaxLength(50).IsRequired();
+            b.Property(x => x.CommandStatus).HasMaxLength(50).IsRequired();
 
             b.HasOne(x => x.Device)
-                .WithMany(d => d.Commands)
+                .WithMany()
                 .HasForeignKey(x => x.DeviceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
@@ -64,7 +80,7 @@ public sealed class DevicesDbContext : BaseDbContext
             b.HasIndex(x => x.Thumbprint).IsUnique();
             b.Property(x => x.Thumbprint).HasMaxLength(128).IsRequired();
 
-            b.HasOne(x => x.Device)
+            b.HasOne<Device>()
                 .WithMany()
                 .HasForeignKey(x => x.DeviceId)
                 .OnDelete(DeleteBehavior.Cascade);
