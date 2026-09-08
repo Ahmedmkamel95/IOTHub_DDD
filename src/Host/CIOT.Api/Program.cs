@@ -1,3 +1,5 @@
+
+﻿using CIOT.Api;
 using CIOT.Modules.Admin;
 using CIOT.Modules.Admin.Endpoints;
 using CIOT.Modules.Asset;
@@ -62,6 +64,7 @@ builder.Services.AddReportModule(builder.Configuration);
 builder.Services.AddLocalAdapterModule(builder.Configuration);
 
 var app = builder.Build();
+
 
 // Apply versioned migrations when explicitly requested; retain direct creation for local bootstrap.
 using (var scope = app.Services.CreateScope())
@@ -159,6 +162,10 @@ if (args.Contains("--seed"))
         Console.WriteLine($"Seed file not found at {seedPath}");
     }
     return;
+
+if (app.Environment.IsDevelopment())
+{
+    await app.ApplyDatabaseMigrationsAsync();
 }
 
 // 4. Middleware Pipeline
